@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SSE Counter</title>
+  <style>
+    #count {
+      font-size: 3em;
+      transition: transform 0.2s ease;
+    }
+    #count.pulse {
+      transform: scale(1.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>Live Visitors Counter</h1>
+  <div id="count">0</div>
+
+  <script>
+    const countDiv = document.getElementById("count");
+
+    const evtSource = new EventSource("/events");
+    evtSource.onmessage = function(event) {
+      const oldValue = parseInt(countDiv.textContent);
+      const newValue = parseInt(event.data);
+
+      countDiv.textContent = newValue;
+
+      if (newValue > oldValue) {
+        countDiv.classList.add("pulse");
+        setTimeout(() => countDiv.classList.remove("pulse"), 200);
+      }
+    };
+
+    fetch("/visit");
+  </script>
+</body>
+</html>
