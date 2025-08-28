@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Contador de Visitas</title>
+</head>
+<body>
+  <h1>Contador: <span id="counter">0</span></h1>
+  <button onclick="increment()">Visitar</button>
+
+  <script>
+    function increment() {
+      fetch("/visit");
+    }
+
+    const counterEl = document.getElementById("counter");
+    const evtSource = new EventSource("/events");
+
+    evtSource.onmessage = function(event) {
+      counterEl.textContent = event.data;
+    };
+  </script>
+</body>
+</html>

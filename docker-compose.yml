@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  redis:
+    image: redis:7.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  nginx-lua:
+    build: ./nginx
+    container_name: nginx-lua
+    ports:
+      - "8080:80"
+    depends_on:
+      - redis
+
+  nginx-lua-2:
+    build: ./nginx
+    container_name: nginx-lua-2
+    ports:
+      - "8081:80"
+    depends_on:
+      - redis
