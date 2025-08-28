@@ -14,3 +14,11 @@ services:
       - "8080:80"
     depends_on:
       - redis
+
+  nginx-lua-2:
+    build: ./nginx
+    container_name: nginx-lua-2
+    ports:
+      - "8081:80"
+    depends_on:
+      - redis

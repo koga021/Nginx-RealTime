@@ -1,73 +1,26 @@
--- local redis = require "resty.redis"
--- local red = redis:new()
--- red:set_timeout(1000)
-
--- local ok, err = red:connect("redis", 6379)
--- if not ok then
---     ngx.say("failed to connect: ", err)
---     return
--- end
-
--- -- incrementa contador
--- local res, err = red:incr("counter")
--- if not res then
---     ngx.say("failed to increment: ", err)
---     return
--- end
-
--- -- responde ao cliente
--- ngx.say("Visit registered! Current count: ", res)
-
-
--- local redis = require "resty.redis"
--- local red = redis:new()
--- red:set_timeout(1000)
-
--- local ok, err = red:connect("redis", 6379)
--- if not ok then
---     ngx.say("failed to connect: ", err)
---     return
--- end
-
--- -- incrementa contador
--- local val, err = red:incr("counter")
--- if not val then
---     ngx.say("failed to increment: ", err)
---     return
--- end
-
--- -- publica o novo valor no canal "counter_channel"
--- red:publish("counter_channel", val)
-
--- ngx.say("Visit registered! Current count: ", val)
-
--- red:set_keepalive(10000, 100)
-
-
 local redis = require "resty.redis"
+
 local red = redis:new()
 red:set_timeout(1000)
 
 local ok, err = red:connect("redis", 6379)
 if not ok then
-    ngx.say("failed to connect: ", err)
+    ngx.status = 500
+    ngx.say("Redis connection error: ", err)
     return
 end
 
--- incrementa contador
-local val, err = red:incr("counter")
-if not val then
-    ngx.say("failed to increment: ", err)
+-- Incrementa no Redis
+local new_count, err = red:incr("counter")
+if not new_count then
+    ngx.status = 500
+    ngx.say("Failed to increment counter: ", err)
     return
 end
 
--- publica no canal Pub/Sub
-red:publish("counter_channel", val)
-
--- atualiza cache Lua
-local cache = ngx.shared.my_cache
-cache:set("counter", val)
-
-ngx.say("Visit registered! Current count: ", val)
+-- Publica para que o subscriber atualize o cache
+red:publish("counter_channel", new_count)
 
 red:set_keepalive(10000, 100)
+
+ngx.say(new_count)
